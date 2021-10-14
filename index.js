@@ -45,7 +45,9 @@ async function getWeather() {
     }
     try {
         loaderOn();
-        const weather = await fetch(`https:/api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${unit}`);
+        const weather = await fetch(`https:/api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${unit}`, {
+            mode: 'cors'
+        });
         const weatherTreated = await weather.json();
         const id = weatherTreated.weather[0].id;
         const temp = weatherTreated.main.temp;
