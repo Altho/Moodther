@@ -11,20 +11,22 @@ let city;
 
 button.addEventListener('click', handleClick)
 
+navigator.geolocation.getCurrentPosition(function (position) {
+    geoLoc(position.coords.latitude, position.coords.longitude);
+});
+
 toggle.addEventListener('click', () => {
     if (unit === "imperial") {
         unit = "metric";
         notation = "°C"
-        console.log(unit);
     } else {
         unit = "imperial"
         notation = "°F"
 
-        console.log(unit);
 
     }
     if (city) {
-        getWeather();
+        fetchWeather();
 
     }
 
@@ -33,22 +35,49 @@ toggle.addEventListener('click', () => {
 
 function handleClick(e) {
     e.preventDefault();
-    getWeather();
+    fetchWeather();
 
 }
 
+async function geoLoc(lat, lon) {
+    loaderOn();
 
-async function getWeather() {
+    try {
+        const weather = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`, {
+            mode: 'cors'
+        });
+        const weatherTreated = await weather.json();
+        getWeather(weatherTreated)
+    } catch (e) {
+        throw e
+    }
+    ;
+}
+
+
+async function fetchWeather() {
+    loaderOn();
     if (inputField.value) {
         city = inputField.value
 
     }
     try {
-        loaderOn();
         const weather = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${unit}`, {
             mode: 'cors'
         });
         const weatherTreated = await weather.json();
+        getWeather(weatherTreated)
+    } catch (e) {
+        throw e
+    }
+    ;
+}
+
+
+function getWeather(weatherTreated) {
+
+    try {
+
         const id = weatherTreated.weather[0].id;
         const temp = weatherTreated.main.temp;
         const country = weatherTreated.sys.country;
@@ -102,7 +131,6 @@ async function getWeather() {
 
         drawMap(lat, lon);
 
-        console.log(weatherTreated);
         setPageStyle(id, clouds);
         showBasicInfos(weatherTreated.name, temp, country)
         iconBar(weatherMessage, icon);
@@ -219,8 +247,7 @@ function additionalInfos(extraInfos) {
     const infos = document.createElement('table');
 
     for (let info of extraInfos) {
-        console.log(info.name)
-        console.log(info.source)
+
         const infoTr = document.createElement('tr');
 
         const name = document.createElement('td');
@@ -246,7 +273,6 @@ function setPageStyle(id, clouds) {
 
     if (id > 199 && id < 300) {
         document.body.classList.add('background-200')
-        console.log('weather')
         header.className = 'header-200';
 
 
