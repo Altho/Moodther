@@ -43,10 +43,12 @@ async function geoLoc(lat, lon) {
     loaderOn();
 
     try {
-        const weather = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`, {
+        const weather = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${unit}`, {
             mode: 'cors'
         });
         const weatherTreated = await weather.json();
+        console.log(weatherTreated)
+        city=weatherTreated.name;
         getWeather(weatherTreated)
     } catch (e) {
         throw e
